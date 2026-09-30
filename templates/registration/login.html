@@ -1,0 +1,44 @@
+
+{% extends "forum/base.html" %}
+
+{% block title %}Login | DoubtSpace{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <h2>Welcome back!</h2>
+    <p>Login to continue to DoubtSpace.</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {{ form.username.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
+
+        <button type="submit" class="btn-primary-custom w-100">
+            Login
+        </button>
+    </form>
+
+    <p class="mt-4 text-center">
+        New to DoubtSpace?
+        <a href="{% url 'register' %}">Create an account</a>
+    </p>
+</div>
+{% endblock %}

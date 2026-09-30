@@ -1,0 +1,97 @@
+
+{% extends "forum/base.html" %}
+
+{% block title %}Ask a Doubt | DoubtSpace{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="auth-card" style="max-width: 100%;">
+
+            <div class="mb-4">
+                <span class="hero-badge">💡 ASK THE COMMUNITY</span>
+                <h2>Ask your doubt</h2>
+                <p>
+                    Ask freely. Your identity will not be displayed
+                    alongside your question.
+                </p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label for="title">Question title</label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        class="form-control"
+                        maxlength="200"
+                        placeholder="e.g. How does binary search work?"
+                        value="{{ request.POST.title|default:'' }}"
+                        required
+                    >
+                    <div class="form-text">
+                        Keep your question title clear and specific.
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="category">Choose category</label>
+                    <select
+                        id="category"
+                        name="category"
+                        class="form-select"
+                        required
+                    >
+                        {% for value, label in categories %}
+                            <option
+                                value="{{ value }}"
+                                {% if request.POST.category == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="description">Describe your doubt</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        class="form-control"
+                        rows="7"
+                        placeholder="Explain what you are trying to understand..."
+                        required
+                    >{{ request.POST.description|default:'' }}</textarea>
+                </div>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <button type="submit" class="btn-primary-custom">
+                        Post question →
+                    </button>
+
+                    <a href="{% url 'home' %}" class="btn-outline-custom">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

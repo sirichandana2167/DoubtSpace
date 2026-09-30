@@ -1,0 +1,89 @@
+
+{% extends "forum/base.html" %}
+
+{% block title %}Register | DoubtSpace{% endblock %}
+
+{% block content %}
+
+<div class="auth-card">
+
+    <div class="text-center mb-4">
+        <div style="font-size: 3rem;">*</div>
+        <h2>Create an account</h2>
+        <p>Join DoubtSpace and start learning together.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}">
+                Username
+            </label>
+
+            {{ form.username }}
+
+            {% for error in form.username.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.password1.id_for_label }}">
+                Password
+            </label>
+
+            {{ form.password1 }}
+
+            {% for error in form.password1.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+
+            <small class="text-secondary">
+                You can choose a simple password for your project demo.
+            </small>
+        </div>
+
+        <div class="mb-4">
+            <label for="{{ form.password2.id_for_label }}">
+                Confirm password
+            </label>
+
+            {{ form.password2 }}
+
+            {% for error in form.password2.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn-primary-custom w-100">
+            Create Account →
+        </button>
+    </form>
+
+    <div class="text-center mt-4">
+        <p class="mb-0">
+            Already have an account?
+            <a href="{% url 'login' %}"
+               class="fw-semibold text-decoration-none"
+               style="color: #6c4ce3;">
+                Login
+            </a>
+        </p>
+    </div>
+
+    <div class="text-center mt-3">
+        <small class="text-secondary">
+            🔒 Your identity is not displayed with your questions.
+        </small>
+    </div>
+
+</div>
+
+{% endblock %}

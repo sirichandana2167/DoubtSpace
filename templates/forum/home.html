@@ -1,0 +1,333 @@
+
+{% extends "forum/base.html" %}
+
+{% block title %}Explore | DoubtSpace{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero-section">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="hero-badge">
+                ✨ YOUR CAMPUS LEARNING COMMUNITY
+            </span>
+
+            <h1 class="hero-title">
+                Got a doubt?<br>
+                <span class="gradient-text">Ask without fear.</span>
+            </h1>
+
+            <p class="hero-description mt-3">
+                A safe space for students to ask questions anonymously,
+                share knowledge, and learn together.
+                No judgment. Just learning.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 mt-4">
+                <a href="{% url 'ask_question' %}"
+                   class="btn-primary-custom">
+                    + Ask a doubt
+                </a>
+
+                <a href="#questions"
+                   class="btn-outline-custom">
+                    Explore questions ↓
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="hero-stat-card">
+                        <h3>{{ questions|length }}</h3>
+                        <p>Questions shown</p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="hero-stat-card">
+                        <h3>100%</h3>
+                        <p>Anonymous posts</p>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="hero-stat-card">
+                        <h3>💜 Learn Together</h3>
+                        <p>Every question is an opportunity to learn.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- SEARCH AND FILTER -->
+<section class="search-section">
+    <form method="get" action="{% url 'home' %}">
+        <div class="row g-3 align-items-center">
+
+            <div class="col-lg-7">
+                <div class="search-box">
+                    <span>🔍</span>
+
+                    <input
+                        type="text"
+                        name="q"
+                        class="search-input"
+                        placeholder="Search doubts, topics, or keywords..."
+                        value="{{ search }}"
+                    >
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <select name="category" class="category-select">
+                    <option value="">All categories</option>
+
+                    {% for value, label in categories %}
+                        <option
+                            value="{{ value }}"
+                            {% if selected_category == value %}selected{% endif %}
+                        >
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-lg-2 d-grid">
+                <button type="submit" class="btn-primary-custom">
+                    Search
+                </button>
+            </div>
+
+        </div>
+
+        {% if search or selected_category %}
+            <div class="mt-3">
+                <a href="{% url 'home' %}" class="text-decoration-none">
+                    ✕ Clear filters
+                </a>
+            </div>
+        {% endif %}
+    </form>
+</section>
+
+
+<!-- QUESTIONS AND SIDEBAR -->
+<div class="row g-4" id="questions">
+
+    <!-- QUESTION LIST -->
+    <div class="col-lg-8">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="fw-bold mb-1">Explore doubts</h4>
+                <p class="question-count mb-0">
+                    Find questions and help fellow students.
+                </p>
+            </div>
+
+            <span class="badge rounded-pill text-bg-light p-2">
+                {{ questions|length }} result{{ questions|length|pluralize }}
+            </span>
+        </div>
+
+
+        {% for question in questions %}
+
+            <article class="question-card">
+
+                <!-- UPVOTE -->
+                <div class="vote-column">
+                    {% if user.is_authenticated %}
+                        <form
+                            method="post"
+                            action="{% url 'upvote_question' question.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="vote-button"
+                                title="Upvote this question"
+                            >
+                                ▲
+                            </button>
+                        </form>
+                    {% else %}
+                        <a
+                            href="{% url 'login' %}?next={% url 'question_detail' question.id %}"
+                            class="vote-button"
+                            title="Login to upvote"
+                        >
+                            ▲
+                        </a>
+                    {% endif %}
+
+                    <span class="vote-count">
+                        {{ question.votes }}
+                    </span>
+                </div>
+
+
+                <!-- QUESTION CONTENT -->
+                <div class="flex-grow-1">
+
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="category-badge">
+                            {{ question.get_category_display }}
+                        </span>
+
+                        <span class="anonymous-badge">
+                            👤 Anonymous
+                        </span>
+                    </div>
+
+
+                    <h5 class="question-title">
+                        <a href="{% url 'question_detail' question.id %}">
+                            {{ question.title }}
+                        </a>
+                    </h5>
+
+
+                    <p class="question-description mb-2">
+                        {% if question.description|length > 220 %}
+                            {{ question.description|truncatechars:220 }}
+                        {% else %}
+                            {{ question.description }}
+                        {% endif %}
+                    </p>
+
+
+                    <div class="question-footer">
+
+                        <span>
+                            🕒 {{ question.created_at|date:"d M Y, h:i A" }}
+                        </span>
+
+                        <span>
+                            💬 {{ question.answers.count }} answer{{ question.answers.count|pluralize }}
+                        </span>
+
+                        <a
+                            href="{% url 'question_detail' question.id %}"
+                            class="text-decoration-none fw-semibold"
+                            style="color: #6c4ce3;"
+                        >
+                            View discussion →
+                        </a>
+
+                    </div>
+
+                </div>
+            </article>
+
+        {% empty %}
+
+            <div class="empty-state">
+                <div style="font-size: 3rem;">🔎</div>
+
+                <h5 class="fw-bold mt-3">No questions found</h5>
+
+                <p class="text-secondary">
+                    Try another search or category, or be the first to ask!
+                </p>
+
+                <a href="{% url 'ask_question' %}"
+                   class="btn-primary-custom mt-2">
+                    + Ask the first doubt
+                </a>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- SIDEBAR -->
+    <div class="col-lg-4">
+
+        <!-- CATEGORIES -->
+        <div class="sidebar-card">
+            <h5>📚 Browse categories</h5>
+
+            <div class="category-list">
+
+                <a
+                    href="{% url 'home' %}"
+                    class="category-item {% if not selected_category %}active{% endif %}"
+                >
+                    <span>🌐 All questions</span>
+                    <span>→</span>
+                </a>
+
+                {% for value, label in categories %}
+                    <a
+                        href="{% url 'home' %}?category={{ value|urlencode }}"
+                        class="category-item {% if selected_category == value %}active{% endif %}"
+                    >
+                        <span>{{ label }}</span>
+                        <span>→</span>
+                    </a>
+                {% endfor %}
+
+            </div>
+        </div>
+
+
+        <!-- GUIDELINES -->
+        <div class="guidelines-card">
+            <h5>💜 Community guidelines</h5>
+
+            <ul class="ps-3 mb-0">
+                <li class="mb-2">
+                    Be respectful to everyone.
+                </li>
+
+                <li class="mb-2">
+                    Never share passwords or private information.
+                </li>
+
+                <li class="mb-2">
+                    Explain your doubts clearly.
+                </li>
+
+                <li class="mb-2">
+                    Give helpful and relevant answers.
+                </li>
+
+                <li>
+                    Keep discussions focused on learning.
+                </li>
+            </ul>
+        </div>
+
+
+        <!-- ASK QUESTION CARD -->
+        <div class="sidebar-card text-center">
+            <div style="font-size: 2.5rem;">💡</div>
+
+            <h5 class="mt-2 mb-2">Have a question?</h5>
+
+            <p class="text-secondary small">
+                Don't let a doubt stop your learning.
+                Ask the community!
+            </p>
+
+            <a href="{% url 'ask_question' %}"
+               class="btn-primary-custom w-100">
+                Ask anonymously
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

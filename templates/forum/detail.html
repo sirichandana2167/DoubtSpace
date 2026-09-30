@@ -1,0 +1,116 @@
+
+{% extends "forum/base.html" %}
+
+{% block title %}Question Details | DoubtSpace{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+
+    <a href="{% url 'home' %}" class="detail-back">
+        ← Back to questions
+    </a>
+
+    <!-- Question card -->
+    <section class="detail-question-card">
+
+        <div class="detail-question-header">
+            <span class="detail-category">
+                {{ question.get_category_display }}
+            </span>
+
+            <h1 class="detail-question-title">
+                {{ question.title }}
+            </h1>
+        </div>
+
+        <div class="detail-description">
+            {{ question.description|linebreaksbr }}
+        </div>
+
+        <div class="detail-meta">
+            <span>{{ question.created_at|timesince }} ago</span>
+            <span class="detail-meta-dot">•</span>
+            <span>Anonymous student</span>
+        </div>
+
+        <div class="detail-actions">
+            <form method="post"
+                  action="{% url 'upvote_question' question.id %}">
+                {% csrf_token %}
+                <button type="submit" class="detail-upvote">
+                    ▲ {{ question.votes }} upvotes
+                </button>
+            </form>
+
+            <span class="detail-replies">
+                {{ answers|length }}
+                {% if answers|length == 1 %}reply{% else %}replies{% endif %}
+            </span>
+        </div>
+
+    </section>
+
+    <!-- Answers -->
+    <section class="detail-answers-section">
+        <h2>
+            Community answers
+            <span class="detail-answer-count">({{ answers|length }})</span>
+        </h2>
+
+        <p class="detail-section-subtitle">
+            Share your knowledge and help another student.
+        </p>
+
+        {% for answer in answers %}
+            <article class="detail-answer-card">
+                <div class="detail-answer-avatar">A</div>
+
+                <div class="detail-answer-content">
+                    <strong>Anonymous student</strong>
+                    <span class="detail-answer-time">
+                        {{ answer.created_at|timesince }} ago
+                    </span>
+                    <p>{{ answer.body|linebreaksbr }}</p>
+                </div>
+            </article>
+        {% empty %}
+            <div class="detail-empty">
+                <p>No answers yet.</p>
+                <span>Be the first to help this student!</span>
+            </div>
+        {% endfor %}
+    </section>
+
+    <!-- Write an answer -->
+    {% if user.is_authenticated %}
+        <section class="detail-reply-section">
+            <h2>Write an answer</h2>
+            <p class="detail-section-subtitle">
+                Replies are displayed publicly without your name.
+            </p>
+
+            <form method="post" class="detail-reply-form">
+                {% csrf_token %}
+
+                <label for="answer-body">Your answer</label>
+
+                <textarea
+                    id="answer-body"
+                    name="body"
+                    rows="5"
+                    maxlength="5000"
+                    placeholder="Share your explanation..."
+                    required
+                ></textarea>
+
+                <button type="submit" class="detail-submit">
+                    Post answer →
+                </button>
+            </form>
+        </section>
+    {% else %}
+        <p>Please <a href="{% url 'login' %}">log in</a> to answer.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
